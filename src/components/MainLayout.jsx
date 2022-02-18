@@ -6,7 +6,7 @@ import {
   MenuFoldOutlined,
 } from '@ant-design/icons'
 import './../App.css'
-import { logoutUser, userSelector } from '../features/UserSlice'
+import { logoutUser, userSelector, fetchLoggedUser } from '../features/UserSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
 
@@ -22,6 +22,10 @@ const MainLayout = () => {
   const toggle = () => {
     setCollapsed(!collapsed)
   }
+
+  useEffect(()=>{
+    dispatch(fetchLoggedUser())
+  },[])
 
   useEffect(() => {
     if (isError){

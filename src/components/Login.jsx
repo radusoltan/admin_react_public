@@ -1,5 +1,5 @@
 import React,{useEffect} from 'react'
-import { Form, Input, Button, Checkbox } from 'antd'
+import { Form, Input, Button, Checkbox, Spin } from "antd";
 import { UserOutlined, LockOutlined } from '@ant-design/icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUser,userSelector, clearState } from '../features/UserSlice'
@@ -33,8 +33,11 @@ export const Login = () => {
       dispatch(clearState())
       navigate('/')
     }
-  },[isError, isSuccess])
-
+    
+  },[isError, isSuccess, isFetching])
+if (isFetching) {
+  return <Spin />;
+}
 
   return (
     <>

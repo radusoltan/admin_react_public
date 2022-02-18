@@ -34,16 +34,20 @@ export const loginUser = createAsyncThunk(
 
 export const fetchLoggedUser = createAsyncThunk(
   'user/getLogged',
-  async ({token},thunkAPI) => {
+  async (thunkAPI) => {
     try {
+      
+      const response = await axios.get("/admin/getLoggedUser", {
+        headers: {
+          "XSRF-TOKEN": cookies.get("XSRF-TOKEN"),
+        },
+      });
 
-      const response = await axios.get('/getLoggedUser',{
-        headers:{
-          'XSRF-TOKEN':cookies.get('XSRF-TOKEN')
-        }
-      })
-
-      console.log(response)
+      if (response.status === 200){
+        return response.data.user
+      } else {
+        return thunkAPI.rejectWithValue(response)
+      }
 
     } catch (e){
       return thunkAPI.rejectWithValue(e)
@@ -115,12 +119,19 @@ export const userSLice = createSlice({
       state.isError = true
       state.errorMessage = payload.response.data.message
       state.isFetching = false
+
+      return state
     },
     [fetchLoggedUser.pending]: (state)=>{
       state.isFetching = true
     },
     [fetchLoggedUser.fulfilled]: (state,{payload})=>{
       
+      state.username = payload.name
+      state.email = payload.email
+      state.isFetching = false
+      state.isSuccess = true
+      return state
     },
     [fetchLoggedUser.rejected]: (state,{payload})=>{
 
