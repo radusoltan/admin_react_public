@@ -37,13 +37,39 @@ export const fetchLoggedUser = createAsyncThunk(
   async ({token},thunkAPI) => {
     try {
 
-      const response = axios.get('/getLoggedUser',{
+      const response = await axios.get('/getLoggedUser',{
         headers:{
           'XSRF-TOKEN':cookies.get('XSRF-TOKEN')
         }
       })
 
       console.log(response)
+
+    } catch (e){
+      return thunkAPI.rejectWithValue(e)
+    }
+  }
+)
+
+export const logoutUser = createAsyncThunk(
+  'user/logout',
+  async (thunkAPI) => {
+    try {
+      const response = axios.post('/logout',{},{
+        headers: {
+          'XSRF-TOKEN': cookies.get('XSRF-TOKEN')
+        }
+      })
+
+      if (response.status === 204){
+        if (cookies.get("XSRF-TOKEN")){
+          cookies.remove('laravel_session')
+          cookies.remove("XSRF-TOKEN")
+        }          
+        return true
+      } else {
+        return thunkAPI.rejectWithValue(response)
+      }
 
     } catch (e){
       return thunkAPI.rejectWithValue(e)
@@ -98,6 +124,18 @@ export const userSLice = createSlice({
     },
     [fetchLoggedUser.rejected]: (state,{payload})=>{
 
+    },
+    [logoutUser.pending]: state => {
+      state.isFetching = true
+    },
+    [logoutUser.fulfilled]: (state,{payload}) => {
+      
+    },
+    [logoutUser.rejected]: (state,{payload}) => {
+      console.log('logout User', payload)
+      state.isFetching = false
+      state.isError = true
+      state.errorMessage = payload.response.data.message
     }
   }
 })
